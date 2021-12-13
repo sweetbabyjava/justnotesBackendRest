@@ -34,6 +34,14 @@ public class NoteController {
 
         return getStringResponseEntity(null, token, shareUid, response, noteRequestType, shareRequestType,language);
     }
+    @GetMapping(value = "/notes/shared", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getSharedNotes(@RequestHeader("Authorization") String token) {
+
+        StringBuilder response= new StringBuilder("Read SharedUserNotes ");
+        String noteRequestType="readShared", shareRequestType= null, shareUid= null, language = null;
+
+        return getStringResponseEntity(null, token, shareUid, response, noteRequestType, shareRequestType,language);
+    }
     @PostMapping(path = "/notes/create", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> newNote(@RequestBody Note note,
                                           @RequestHeader("Authorization") String token) {
@@ -104,13 +112,17 @@ public class NoteController {
                                                       String shareRequestType,
                                                       String language) {
         List<Note> notes = null;
+        //Initialize project id for translation and title for debugging purposes
         String projectId = "seindercloud", title= (note != null ? note.getTitle() : "");
         try {
             String uid = verifyUser(token, false);
             if(noteRequestType.equals("read")){
                 notes = noteService.readNotes(uid);
-            }else {
-                if (language != null && !language.isBlank()) {
+            }else if(noteRequestType.equals("readShared")){
+                notes = userService.getSharedNotes(uid);
+            }
+            else {
+                if (language != null && note != null && !language.isBlank()) {
                     note.setText(translationService.translateText(projectId, language, note.getText()));
                 }
                 Note updatedNote = noteService.changeNote(note, uid, noteRequestType);
@@ -118,12 +130,16 @@ public class NoteController {
                     userService.shareRequest(updatedNote, shareUid, shareRequestType);
                 }
             }
-            response.append(title+" successful");
+            response.append(title).append(" successful");
         }
-        catch(FirebaseAuthException e)      {response.append(title+" failed: Token is Invalid");}
-        catch(IllegalAccessException e)     {response.append(title+" failed: Illegal Access");}
-        catch(IllegalArgumentException e)   {response.append(title+" failed: Note not found");}
-        catch (Exception e)                 {response.append(title+" failed: Unknown Exception");
+        catch(FirebaseAuthException e)      {
+            response.append(title).append(" failed: Token is Invalid");}
+        catch(IllegalAccessException e)     {
+            response.append(title).append(" failed: Illegal Access");}
+        catch(IllegalArgumentException e)   {
+            response.append(title).append(" failed: Note not found");}
+        catch (Exception e)                 {
+            response.append(title).append(" failed: Unknown Exception");
             e.printStackTrace();
         }
         finally {

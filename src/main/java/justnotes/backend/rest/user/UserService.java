@@ -5,6 +5,7 @@ import justnotes.backend.rest.note.Note;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -14,7 +15,17 @@ public class UserService {
     UserRepository userRepo;
 
     public void persistUser(String uid, String displayName, String email){
-            if (!userRepo.findById(uid).isPresent()) userRepo.save(new User(uid, displayName, email));
+            if (userRepo.findById(uid).isEmpty()) userRepo.save(new User(uid, displayName, email));
+    }
+    public List<Note> getSharedNotes(String uid){
+        if(uid != null && !uid.isBlank()){
+            Optional<User> user = userRepo.findById(uid);
+            if(user.isPresent()){
+                return user.get().getSharedWithMe();
+            }
+            throw new IllegalArgumentException("User not found");
+        }
+        return null;
     }
 
     public void shareRequest(Note note, String uid, String request) throws IllegalAccessException {
