@@ -112,6 +112,7 @@ public class NoteController {
                                                       String shareRequestType,
                                                       String language) {
         List<Note> notes = null;
+        Note updatedNote = null;
         //Initialize project id for translation and title for debugging purposes
         String projectId = "seindercloud", title= (note != null ? note.getTitle() : "");
         try {
@@ -125,7 +126,7 @@ public class NoteController {
                 if (language != null && note != null && !language.isBlank()) {
                     note.setText(translationService.translateText(projectId, language, note.getText()));
                 }
-                Note updatedNote = noteService.changeNote(note, uid, noteRequestType);
+                updatedNote = noteService.changeNote(note, uid, noteRequestType);
                 if (updatedNote != null && shareRequestType != null && !shareRequestType.isBlank()) {
                     userService.shareRequest(updatedNote, shareUid, shareRequestType);
                 }
@@ -146,6 +147,9 @@ public class NoteController {
             System.out.println(response.toString());
             if(notes != null){
                 return new ResponseEntity<>(notes, HttpStatus.OK);
+            }
+            if(updatedNote != null){
+                return new ResponseEntity<>(updatedNote, HttpStatus.OK);
             }
             if(response.toString().contains(" successful")){
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);

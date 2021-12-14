@@ -6,5 +6,5 @@ RUN gradle build -x test
 FROM openjdk
 WORKDIR /app
 EXPOSE 8080
-COPY --from=build /app/build/libs/SECloud-0.0.1-SNAPSHOT.jar .
-CMD java -jar SECloud-0.0.1-SNAPSHOT.jar
+COPY --from=build /app/build/libs/rest-0.0.1-SNAPSHOT.jar .
+CMD java -jar rest-0.0.1-SNAPSHOT.jar
