@@ -5,7 +5,6 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 **/firebase_config.json
-**/application.properties
 
 ### STS ###
 .apt_generated
