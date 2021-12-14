@@ -110,13 +110,14 @@ public class NoteController {
                                                       StringBuilder response,
                                                       String noteRequestType,
                                                       String shareRequestType,
-                                                      String language) {
+                                                      String language
+                                                      ){
         List<Note> notes = null;
         Note updatedNote = null;
         //Initialize project id for translation and title for debugging purposes
         String projectId = "seindercloud", title= (note != null ? note.getTitle() : "");
         try {
-            String uid = verifyUser(token, false);
+            String uid = verifyUser(token, true);
             if(noteRequestType.equals("read")){
                 notes = noteService.readNotes(uid);
             }else if(noteRequestType.equals("readShared")){
