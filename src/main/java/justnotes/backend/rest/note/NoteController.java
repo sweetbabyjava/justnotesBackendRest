@@ -143,6 +143,7 @@ public class NoteController {
             response.append(title).append(" failed: Unknown Exception");
             e.printStackTrace();
         }
+        //TODO: Finally block ändern
         finally {
             System.out.println(response.toString());
             if(notes != null){
