@@ -60,23 +60,32 @@ public class NoteController {
 
         return getStringResponseEntity(note, token, shareUid, response, noteRequestType, shareRequestType,language);
     }
-    @PutMapping(path = "/notes/share/{uid}", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @PutMapping(path = "/notes/share/{shareUid}", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> shareNote(@RequestBody Note note,
                                             @RequestHeader("Authorization") String token,
-                                            @RequestParam("uid") String shareUid){
+                                            @PathVariable String shareUid){
 
         StringBuilder response= new StringBuilder("Sharing ");
-        String noteRequestType="update", shareRequestType="share", language=null;
+        String noteRequestType="share", shareRequestType="share", language=null;
 
         return getStringResponseEntity(note, token, shareUid, response, noteRequestType, shareRequestType,language);
     }
-    @PutMapping(path = "/notes/withdraw/{uid}", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @PutMapping(path = "/notes/withdraw", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> withdrawNote(@RequestBody Note note,
+                                          @RequestHeader("Authorization") String token){
+
+        StringBuilder response= new StringBuilder("Withdrawing note ");
+        String noteRequestType="share", shareRequestType="withdraw", language=null, shareUid=null;
+
+        return getStringResponseEntity(note, token, shareUid, response, noteRequestType, shareRequestType,language);
+    }
+    @PutMapping(path = "/notes/withdraw/from/{shareUid}", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> withdrawNote(@RequestBody Note note,
                                              @RequestHeader("Authorization") String token,
-                                             @RequestParam("uid") String shareUid){
+                                             @PathVariable String shareUid){
 
         StringBuilder response= new StringBuilder("Withdrawing ");
-        String noteRequestType="update", shareRequestType="withdraw", language=null;
+        String noteRequestType="share", shareRequestType="withdraw", language=null;
 
         return getStringResponseEntity(note, token, shareUid, response, noteRequestType, shareRequestType,language);
     }
@@ -123,14 +132,17 @@ public class NoteController {
             }else if(noteRequestType.equals("readShared")){
                 notes = userService.getSharedNotes(uid);
             }
-            else {
+            else if(noteRequestType.equals("update") || noteRequestType.equals("delete") || noteRequestType.equals("create")){
                 if (language != null && note != null && !language.isBlank()) {
                     note.setText(translationService.translateText(projectId, language, note.getText()));
                 }
                 updatedNote = noteService.changeNote(note, uid, noteRequestType);
-                if (updatedNote != null && shareRequestType != null && !shareRequestType.isBlank()) {
-                    userService.shareRequest(updatedNote, shareUid, shareRequestType);
+                if(shareRequestType != null && shareRequestType.equals("share")) {
+                    userService.shareRequest(updatedNote, uid, shareUid, shareRequestType);
                 }
+                }
+            else if (noteRequestType.equals("share") && note != null && shareRequestType != null && !shareRequestType.isBlank()) {
+                userService.shareRequest(note,uid, shareUid, shareRequestType);
             }
             response.append(title).append(" successful");
         }
@@ -139,9 +151,9 @@ public class NoteController {
         catch(IllegalAccessException e)     {
             response.append(title).append(" failed: Illegal Access");}
         catch(IllegalArgumentException e)   {
-            response.append(title).append(" failed: Note not found");}
+            response.append(title).append(" failed: ").append(e.getMessage());}
         catch (Exception e)                 {
-            response.append(title).append(" failed: Unknown Exception");
+            response.append(title).append(" failed: Unknown Exception"+e.getMessage());
             e.printStackTrace();
         }
         //TODO: Finally block ändern

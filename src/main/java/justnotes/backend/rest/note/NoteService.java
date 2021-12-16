@@ -38,7 +38,7 @@ public class NoteService {
                 }
             } else throw new IllegalAccessException();
         }
-        else throw new IllegalArgumentException();
+        else throw new IllegalArgumentException("Notiz nicht gefunden");
     }
     public List<Note> readNotes(String uid){
         return noteRepository.findAllByUid(uid);

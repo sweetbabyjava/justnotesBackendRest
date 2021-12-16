@@ -14,9 +14,14 @@ import java.util.List;
 @NoArgsConstructor
 public class User {
     @Id
+    private String id;
     private String uid;
     private String displayName;
+    private String email;
     private List<Note> sharedWithMe = new ArrayList<>();
     public User(String uid, String displayName, String email) {
+        this.uid = uid;
+        this.displayName = displayName;
+        this.email = email;
     }
 }

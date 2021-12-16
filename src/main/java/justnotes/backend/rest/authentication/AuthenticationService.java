@@ -15,8 +15,8 @@ public class AuthenticationService {
     public String verifyFirebaseUser(String bearerToken, boolean check) throws FirebaseAuthException {
         String token = getBearerToken(bearerToken);
         FirebaseToken verifiedToken = FirebaseAuth.getInstance().verifyIdToken(token);
-        if(check)
-            userService.persistUser(verifiedToken.getUid(),verifiedToken.getName(),verifiedToken.getEmail());
+        if(check){
+            userService.persistUser(verifiedToken.getUid(),verifiedToken.getName(),verifiedToken.getEmail());}
         return verifiedToken.getUid();
     }
     private String getBearerToken(String bearerToken) {
